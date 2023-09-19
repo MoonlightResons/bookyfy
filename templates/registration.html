@@ -1,0 +1,93 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>User Registration</title>
+  </head>
+    <link rel="stylesheet" type="text/css" href="{% static "assets/css/registration.css" %}">
+  <body>
+    <header></header>
+    <main>
+      <div class="Wrap">
+        <div class="mainWrap">
+
+            <h1>User Registration</h1>
+            <div class="formBlock">
+              <form
+                id="registration-form"
+                method="post"
+                enctype="multipart/form-data"
+              >
+                  {% csrf_token %}
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  placeholder="username"
+                  required
+                /><br />
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  placeholder="Email"
+                  required
+                /><br />
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  placeholder="password"
+                  required
+                /><br />
+                <input
+                  type="password"
+                  id="password2"
+                  name="password2"
+                  placeholder="
+                  password check"
+                  required
+                /><br />
+                <input
+                  type="file"
+                  id="avatar_img"
+                  name="avatar_img"
+                  placeholder="avatar_img"
+                  accept="image/*"
+                /><br />
+                <button type="submit">Register</button>
+              </form>
+            </div>
+
+            <div id="message"></div>
+        </div>
+      </div>
+    </main>
+
+
+    <script>
+        document.getElementById("registration-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+
+            fetch('/user/register/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('input[name="csrfmiddlewaretoken"]').value,
+                },
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    document.getElementById("message").textContent = data.message;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>
