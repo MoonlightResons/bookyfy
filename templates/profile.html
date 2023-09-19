@@ -1,29 +1,39 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Profile</title>
-</head>
-<body>
-    <h1>User Profile</h1>
-    <p>Username: {{ user.username }}</p>
-    <p>Email: {{ user.email }}</p>
+  </head>
+    <link rel="stylesheet" type="text/css" href="{% static "assets/css/profile.css" %}">
+  <body>
+    <center>
+      <div class="wrap">
+        <h1>User Profile</h1>
+        <p> {{ user.username }}</p>
+        <p>  {{ user.email }}</p>
 
-    <!-- Отображение аватарки -->
-    <img src="{{ user.avatar_img.url }}" alt="{{ user.username }}'s Avatar" width="100">
+        <!-- Отображение аватарки -->
+        <img
+          src="media/avatars/default-avatar.jpg"
+          alt=" "
+          width="100"
+        />
 
-    <form method="put" action="{% url 'profile' %}">
-        {% csrf_token %}
-        <input type="hidden" name="action" value="update">
-        <button type="submit">Update Profile</button>
-    </form>
+        <form method="post" action="{% url 'profile' %}">
 
-    <form method="delete" action="{% url 'profile' %}">
-        {% csrf_token %}
-        <input type="hidden" name="action" value="delete">
-        <button type="submit">Delete Profile</button>
-    </form>
+          <input type="hidden" name="action" value="update" />
+          <button type="submit">Update Profile</button>
+        </form>
 
-    <a href="{% url 'logout' %}">Logout</a>
-</body>
+        <form method="post" action="{% url 'profile' %}">
+
+          <input type="hidden" name="action" value="delete" />
+          <button type="submit">Delete Profile</button>
+        </form>
+
+        <a href="{% url 'logout' %}">Logout</a>
+      </div>
+    </center>
+  </body>
 </html>
