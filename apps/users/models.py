@@ -4,10 +4,7 @@ from .managers import CustomUserManager
 
 
 class MyUser(AbstractBaseUser, PermissionsMixin):
-    groups = models.ManyToManyField(Group, related_name='my_users')
-    user_permissions = models.ManyToManyField(Permission, related_name='my_users')
-
-    username = models.CharField('username', max_length=55, null=False, unique=True)
+    username = models.CharField('username', max_length=55, null=False)
     email = models.EmailField('email address', unique=True, null=False)
 
     is_active = models.BooleanField(default=True)

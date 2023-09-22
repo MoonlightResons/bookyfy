@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add AudioBook</title>
+</head>
+<body>
+    <h1>Add AudioBook</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label for="title">Title:</label>
+        <input type="text" id="title" name="title" required><br><br>
+
+        <label for="short_description">Short Description:</label><br>
+        <textarea id="short_description" name="short_description" rows="4" cols="50" required></textarea><br><br>
+
+        <label for="audio_book">Audio Book:</label>
+        <input type="file" id="audio_book" name="audio_book" accept=".mp3, .wav" required><br><br>
+
+        <label for="book_img">Book Image:</label>
+        <input type="file" id="book_img" name="book_img" accept="image/*" required><br><br>
+
+        <!-- Передаем текущего пользователя как автора -->
+        <input type="hidden" id="author" name="author" value="{{ user.id }}">
+
+        <button type="submit">Add AudioBook</button>
+    </form>
+</body>
+</html>

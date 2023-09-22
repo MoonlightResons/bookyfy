@@ -8,9 +8,9 @@ from .views import (
 )
 
 urlpatterns = [
-    path('user/register/', user_registration, name='user-registration'),
-    path('user/profile/', profile, name='profile'),
-    path('user/profile/<int:user_id>/', get_user_profile, name='another-profile'),
+    path('register/', user_registration, name='user-registration'),
+    path('profile/', profile, name='profile'),
+    path('profile/<int:user_id>/', get_user_profile, name='another-profile'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
 ]

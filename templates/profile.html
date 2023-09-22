@@ -71,7 +71,7 @@
         <p>{{ user.username }}</p>
         <p>{{ user.email }}</p>
 
-        <img src="media/avatars/default-avatar.jpg" alt=" " width="100" />
+        <img src="{{ user.avatar_img.url }}" alt="Avatar Cover">
 
         <button type="button" id="updateBtn">Update Profile</button>
 

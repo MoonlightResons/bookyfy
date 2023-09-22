@@ -1,0 +1,80 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Audiobook Detail</title>
+    <link rel="stylesheet" type="text/css" href="{% static "assets/css/audiobook_detail.css" %}">
+</head>
+<body>
+    <h1>Audiobook Detail</h1>
+
+    <div class="audiobook-info">
+        <h2>{{ audiobook.title }}</h2>
+        <p>{{ audiobook.short_description }}</p>
+        <audio controls>
+            <source src="{{ audiobook.audio_book.url }}" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+        <img src="{{ audiobook.book_img.url }}" alt="Book Cover">
+    </div>
+
+    {% if user.is_authenticated and user == audiobook.author %}
+        <button class="update-button">Update Audiobook</button>
+        <form action="{% url 'audiobook_detail' audiobook.id %}" method="post" style="display: inline;">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="delete">
+            <button type="submit" class="delete-button">Delete Audiobook</button>
+        </form>
+    {% endif %}
+
+    <!-- Модальное окно для обновления аудиокниги -->
+    <div id="update-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Update Audiobook</h2>
+            <form method="post" enctype="multipart/form-data" class="update-form">
+                {% csrf_token %}
+                <label for="title">Title:</label>
+                <input type="text" id="title" name="title" required><br><br>
+
+                <label for="short_description">Short Description:</label><br>
+                <textarea id="short_description" name="short_description" rows="4" cols="50" required></textarea><br><br>
+
+                <label for="audio_book">Audio Book:</label>
+                <input type="file" id="audio_book" name="audio_book" accept=".mp3, .wav"><br><br>
+
+                <label for="book_img">Book Image:</label>
+                <input type="file" id="book_img" name="book_img" accept="image/*"><br><br>
+
+                <button type="submit">Update</button>
+            </form>
+        </div>
+    </div>
+
+    <script>document.addEventListener('DOMContentLoaded', function () {
+    // Найти модальное окно и кнопку для его открытия
+    var modal = document.getElementById('update-modal');
+    var button = document.querySelector('.update-button');
+    var closeButton = document.querySelector('.close-button');
+
+    // Открыть модальное окно при нажатии кнопки
+    button.addEventListener('click', function () {
+        modal.style.display = 'block';
+    });
+
+    // Закрыть модальное окно при нажатии на кнопку "Закрыть"
+    closeButton.addEventListener('click', function () {
+        modal.style.display = 'none';
+    });
+
+    // Закрыть модальное окно при клике вне него
+    window.addEventListener('click', function (event) {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+});
+</script>
+</body>
+</html>

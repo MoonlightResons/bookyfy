@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, renderer_classes, action
 from rest_framework import permissions, status
 from .serializer import UserSerializer, MyTokenObtainPairSerializer
-from .permissions import AnnonPermission, IsAccountOwner, CanModifyUserProfile
+from .permissions import AnnonPermission, IsAccountOwner
 from .models import DefaultUser
 from django.contrib import messages
 
@@ -20,15 +20,10 @@ def user_registration(request):
         if serializer.is_valid():
             user = serializer.save()
             login(request, user)
-            return Response({'message': 'User registered successfully.'}, status=status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return redirect("profile")
     else:
-        # Если это GET-запрос, отобразите HTML-шаблон регистрации
         return render(request, 'registration.html')
 
-
-from django.contrib.auth import authenticate
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
@@ -48,15 +43,21 @@ def profile(request):
             email = request.data.get('email')
             avatar_img = request.data.get('avatar_img')
 
-            user.username = username
-            user.email = email
+            if username:
+                user.username = username
+            if email:
+                user.email = email
             if avatar_img:
                 user.avatar_img = avatar_img
 
+            if username or email or avatar_img:
                 user.save()
 
                 messages.success(request, "Профиль успешно обновлен.")
-                return redirect('profile')
+            else:
+                messages.info(request, "Нет данных для обновления профиля.")
+
+            return redirect('profile')
 
         elif action == 'delete':
             user.delete()
@@ -64,8 +65,6 @@ def profile(request):
             return redirect('login')  # Вы можете перенаправить пользователя на другую страницу после удаления, если это необходимо
 
     return Response({'user': user}, template_name='profile.html')
-
-
 
 
 @api_view(['GET'])
