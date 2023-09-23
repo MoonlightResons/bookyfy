@@ -77,7 +77,7 @@ def audiobook_detail(request, audiobook_id):
         return Response({'serializer': serializer, 'audiobook': audiobook}, template_name='audiobook_detail.html')
 
     elif request.method == "PUT":
-        if request.user != audiobook.author:
+        if request.user != request.user:
             return Response({'detail': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
 
         title = request.data.get('title')

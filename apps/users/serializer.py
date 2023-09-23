@@ -1,3 +1,5 @@
+import re
+
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
@@ -37,10 +39,23 @@ class UserSerializer(serializers.ModelSerializer):
         }
 
     def validate(self, attrs):
-        if attrs['password'] != attrs['password2']:
-            raise serializers.ValidationError(
-                {'password': 'Password fields didnt match!'}
-            )
+        password = attrs['password']
+        password2 = attrs['password2']
+
+        # Проверка на совпадение паролей
+        if password != password2:
+            raise serializers.ValidationError({'password': 'Passwords do not match.'})
+
+        # Валидация пароля с помощью Django's validate_password
+        try:
+            validate_password(password)
+        except serializers.ValidationError as e:
+            raise serializers.ValidationError({'password': e.messages})
+
+        # Проверка на наличие цифр, латинских букв и специальных символов в пароле
+        if not (re.search(r'\d', password) and re.search(r'[a-zA-Z]', password) and re.search(r'[!@#$%^&*()_+{}[\]:;<>,.?~\\-]', password)):
+            raise serializers.ValidationError({'password': 'Password must contain at least one digit, one letter, and one special character.'})
+
         return attrs
 
     def create(self, validated_data):

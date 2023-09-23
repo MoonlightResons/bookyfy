@@ -1,4 +1,6 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout
 from rest_framework import status
@@ -8,21 +10,35 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, renderer_classes, action
 from rest_framework import permissions, status
 from .serializer import UserSerializer, MyTokenObtainPairSerializer
-from .permissions import AnnonPermission, IsAccountOwner
+from .permissions import IsNotAuthenticated
 from .models import DefaultUser
 from django.contrib import messages
+from django.core.files.uploadedfile import SimpleUploadedFile
+
+from ..audiobooks.models import Audiobooks
 
 
-@api_view(['GET', 'POST'])
+@api_view(["GET", "POST"])
+@permission_classes([IsNotAuthenticated])
 def user_registration(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
-            user = serializer.save()
-            login(request, user)
-            return redirect("profile")
+            email = serializer.validated_data['email']
+
+            if DefaultUser.objects.filter(email=email).exists():
+                return Response(
+                    {"message": "Email is already registered."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            serializer.save()
+
+            return redirect("login")
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     else:
-        return render(request, 'registration.html')
+        return render(request, template_name="registration.html")
 
 
 @api_view(['GET', 'POST'])
@@ -31,9 +47,11 @@ def user_registration(request):
 def profile(request):
     user = request.user
 
+    audiobooks = Audiobooks.objects.filter(created_by=user)
+
     if request.method == 'GET':
         serializer = UserSerializer(user)
-        return Response({'user': user, 'serializer': serializer}, template_name='profile.html')
+        return Response({'user': user, 'serializer': serializer, 'audiobooks': audiobooks}, template_name='profile.html')
 
     elif request.method == 'POST':
         action = request.POST.get('action')
