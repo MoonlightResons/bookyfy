@@ -28,7 +28,7 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 LOGIN_REDIRECT_URL = '/user/profile/'
-LOGOUT_REDIRECT_URL = '/login'
+LOGOUT_REDIRECT_URL = '/user/login/'
 
 
 # Application definition
@@ -63,6 +63,9 @@ MIDDLEWARE = [
 AUTH_USER_MODEL = 'users.MyUser'
 
 CSRF_COOKIE_SECURE = True
+
+MY_SUPER_ERROR = 80
+MESSAGE_LEVEL = MY_SUPER_ERROR
 
 ROOT_URLCONF = 'bookyfy.urls'
 

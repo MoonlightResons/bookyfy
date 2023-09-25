@@ -3,7 +3,7 @@ import os
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.response import Response
@@ -65,7 +65,7 @@ def stream_audio(request, audiobook_id):
 
 @api_view(["GET", "PUT", "DELETE"])
 @permission_classes([IsAuthenticated, IsAudiobookOwner])
-@renderer_classes([TemplateHTMLRenderer])
+# @renderer_classes([TemplateHTMLRenderer])
 def audiobook_detail(request, audiobook_id):
     try:
         audiobook = Audiobooks.objects.get(pk=audiobook_id)
@@ -74,7 +74,7 @@ def audiobook_detail(request, audiobook_id):
 
     if request.method == "GET":
         serializer = AudioBookSerializer(audiobook)
-        return Response({'serializer': serializer, 'audiobook': audiobook}, template_name='audiobook_detail.html')
+        return Response({'serializer': serializer.data, 'audiobook': serializer.data})
 
     elif request.method == "PUT":
         if request.user != request.user:
@@ -96,11 +96,11 @@ def audiobook_detail(request, audiobook_id):
         audiobook.save()
 
         messages.success(request, "Аудиокнига успешно обновлена.")
-        return redirect('audiobook_detail', audiobook_id=audiobook_id)
+        return redirect('audiobook-detail', audiobook_id=audiobook_id)
 
     elif request.method == "DELETE":
-        if request.user != audiobook.author:
+        if request.user != audiobook.created_by:
             return Response({'detail': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
-
-        audiobook.delete()
-        return redirect('profile')
+        else:
+            audiobook.delete()
+            return redirect('audiobook-detail')

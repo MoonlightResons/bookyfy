@@ -3,7 +3,6 @@
   <head>
     <meta charset="UTF-8" />
     <title>Profile</title>
-    <link rel="stylesheet" href="./profile.css" />
     <style>
       .modal {
         display: none;
@@ -71,27 +70,28 @@
         <p>{{ user.username }}</p>
         <p>{{ user.email }}</p>
 
-            <img src="{{ user.avatar_img.url }}" alt="Avatar">
+        <img src="media/avatars/default-avatar.jpg" alt=" " width="100" />
 
         <button type="button" id="updateBtn">Update Profile</button>
 
-        <button type="button" id="deleteBtn">Delete Profile</button>
+        <button type="button" id="deleteBtn" name="action" value="delete">Delete Profile</button>
 
         <a href="{% url 'logout' %}">Logout</a>
       </div>
     </center>
 
+        {% if audiobooks %}
     <h2>Your Audiobooks</h2>
     <ul>
         {% for audiobook in audiobooks %}
             <li>
-                <a href="{% url 'audiobook-detail' audiobook_id=audiobook.id %}">
+                <a href="{% url 'audiobook-detail' audiobook.id %}">{{ audiobook.title }}</a>
                     <source src="{{ audiobook.audio_book.url }}" type="audio/mpeg">
-                    {{ audiobook.title }}
                 </a>
             </li>
         {% endfor %}
     </ul>
+    {% endif %}
 
 
     <div id="myModal" class="modal">
@@ -99,22 +99,14 @@
         <span class="close" id="closeBtn">&times;</span>
         <h2>Update Profile</h2>
 
-<form method="post" action="{% url 'profile' %}">
-    {% csrf_token %}
-    <input type="hidden" name="action" value="update" />
-    <input type="text" name="username" placeholder="username" />
-    <input type="email" name="email" placeholder="email">
-    <input type="file" name="avatar_img" placeholder="avatar" />
-    <button type="submit">Update Profile</button>
-</form>
-
-{% if messages %}
-<div class="error-messages">
-    {% for message in messages %}
-    <p>{{ message }}</p>
-    {% endfor %}
-</div>
-{% endif %}
+        <form method="post" action="{% url 'profile' %}">
+            {% csrf_token %}
+          <input type="hidden" name="action" value="update" />
+          <input type="text" name="username" placeholder="username" />
+          <input type="email" name="email" placeholder="email" />
+          <input type="file" name="avatar_img" placeholder="avatar" />
+          <button type="submit">Update Profile</button>
+        </form>
       </div>
     </div>
 
@@ -124,6 +116,8 @@
       const modal = document.getElementById("myModal");
       const closeBtn = document.getElementById("closeBtn");
 
+      const csrfToken = "{{ csrf_token }}"; // Получите CSRF-токен из контекста шаблона
+
       const openModal = () => {
         modal.style.display = "block";
       };
@@ -131,6 +125,23 @@
       const closeModal = () => {
         modal.style.display = "none";
       };
+
+deleteBtn.addEventListener("click", () => {
+  fetch(window.location.href, {
+    method: 'DELETE',
+    headers: {
+      'X-CSRFToken': csrfToken, // Убедитесь, что csrfToken определен
+    },
+  })
+  .then((response) => {
+    if (response.ok) {
+      // Успешное удаление пользователя, выполните перенаправление
+      window.location.href = '/user/login/'; // Измените URL на свой
+    } else {
+      console.error('Failed to delete user profile.');
+    }
+  });
+});
 
       updateBtn.addEventListener("click", openModal);
       closeBtn.addEventListener("click", closeModal);

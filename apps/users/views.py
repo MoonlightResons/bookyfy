@@ -1,21 +1,36 @@
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.password_validation import validate_password
-from django.core.exceptions import ValidationError
-from django.shortcuts import render, redirect
+import re
+from django.middleware.csrf import get_token
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
+from django.urls import reverse
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, renderer_classes, action
 from rest_framework import permissions, status
-from .serializer import UserSerializer, MyTokenObtainPairSerializer
+from .serializer import UserSerializer
 from .permissions import IsNotAuthenticated
-from .models import DefaultUser
+from .models import DefaultUser, MyUser
 from django.contrib import messages
 from django.core.files.uploadedfile import SimpleUploadedFile
-
 from ..audiobooks.models import Audiobooks
+
+
+def is_valid_password(password):
+    if len(password) < 8:
+        return False
+
+    if not any(char.isupper() for char in password):
+        return False
+
+    if not any(char.isdigit() for char in password):
+        return False
+
+    if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+        return False
+
+    return True
 
 
 @api_view(["GET", "POST"])
@@ -25,33 +40,39 @@ def user_registration(request):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             email = serializer.validated_data['email']
+            password = serializer.validated_data['password']
 
-            if DefaultUser.objects.filter(email=email).exists():
+            if MyUser.objects.filter(email=email).exists():
                 return Response(
                     {"message": "Email is already registered."},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
-            serializer.save()
+            if not is_valid_password(password):
+                return Response(
+                    {"message": "Password is invalid."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
+            serializer.save()
             return redirect("login")
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     else:
-        return render(request, template_name="registration.html")
+        return render(request, "registration.html")
 
 
-@api_view(['GET', 'POST'])
+@api_view(['GET', 'POST', 'DELETE'])
 @permission_classes([IsAuthenticated])
 @renderer_classes([TemplateHTMLRenderer])
 def profile(request):
     user = request.user
-
+    csrf_token = get_token(request)
     audiobooks = Audiobooks.objects.filter(created_by=user)
 
     if request.method == 'GET':
         serializer = UserSerializer(user)
-        return Response({'user': user, 'serializer': serializer, 'audiobooks': audiobooks}, template_name='profile.html')
+        return Response({'user': user, 'serializer': serializer, 'audiobooks': audiobooks, 'csrf_token': csrf_token}, template_name='profile.html')
 
     elif request.method == 'POST':
         action = request.POST.get('action')
@@ -77,10 +98,10 @@ def profile(request):
 
             return redirect('profile')
 
-        elif action == 'delete':
-            user.delete()
-            logout(request)
-            return redirect('login')  # Вы можете перенаправить пользователя на другую страницу после удаления, если это необходимо
+    if request.method == 'DELETE':
+        user.delete()
+        logout(request)
+        return Response({'user': user}, template_name='profile.html', status=status.HTTP_200_OK, )  # Вернуть только HTTP-статус без шаблона
 
     return Response({'user': user}, template_name='profile.html')
 
@@ -89,10 +110,9 @@ def profile(request):
 @permission_classes([IsAuthenticated])
 @renderer_classes([TemplateHTMLRenderer])
 def get_user_profile(request, user_id):
-    try:
-        user = DefaultUser.objects.get(pk=user_id)
-    except DefaultUser.DoesNotExist:
-        return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+    user = get_object_or_404(DefaultUser, pk=user_id)
+    audiobooks = Audiobooks.objects.filter(created_by=user)
 
-    serializer = UserSerializer(user)
-    return Response(serializer.data, template_name='another_profile.hmtl')
+    template_name = 'another_profile.html'  # Установите имя вашего шаблона
+
+    return Response({'user': user, 'audiobooks': audiobooks}, template_name=template_name)
