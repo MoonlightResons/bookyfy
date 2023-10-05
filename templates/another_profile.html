@@ -6,22 +6,30 @@
 </head>
 <body>
 <center>
-  <div class="wrap">
+<div class="wrap">
     <h1>User Profile</h1>
     <p>{{ user.username }}</p>
     <p>{{ user.email }}</p>
 
-    {% if audiobooks %}
-    <h2>Audiobooks by {{ user.username }}</h2>
-    <ul>
-      {% for audiobook in audiobooks %}
-      <li>
-        <a href="{% url 'audiobook-detail' audiobook.id %}">{{ audiobook.title }}</a>
-      </li>
-      {% endfor %}
-    </ul>
+    {% if user.is_Contentmaker %}
+        <h2>About</h2>
+        <p>{{ user.contentmaker.about }}</p>
     {% endif %}
-  </div>
+</div>
 </center>
+
+<div class="audiobooks-section">
+    {% if audiobooks %}
+        <h2>Audiobooks By {{ user.username }}</h2>
+        <ul>
+            {% for audiobook in audiobooks %}
+                <li>
+                    <a href="{% url 'audiobook-detail' audiobook.id %}">{{ audiobook.title }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</div>
+
 </body>
 </html>

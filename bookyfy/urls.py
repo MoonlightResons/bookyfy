@@ -24,6 +24,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('user/', include('apps.users.urls')),
     path('audio/', include('apps.audiobooks.urls')),
+    path('book/', include("apps.books.urls")),
+    path('adminka/', include('apps.admin_panel.urls')),
+    path('checkout/', include('apps.checkout.urls')),
     # path('', include('rest_framework.urls')),
 
 ]

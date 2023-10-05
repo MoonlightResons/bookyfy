@@ -10,8 +10,8 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, renderer_classes, action
 from rest_framework import permissions, status
 from apps.users.permissions import IsContentMaker, IsAudiobookOwner
-from .models import Audiobooks
-from .sirializer import AudioBookSerializer
+from .models import Audiobooks, PendingAudiobooks
+from .serializer import AudioBookSerializer
 from apps.users.models import ContentMaker
 from rest_framework.permissions import IsAuthenticated
 
@@ -33,7 +33,7 @@ def add_audiobook(request):
         if request.user.is_Contentmaker:
             author = request.user
 
-        audiobook = Audiobooks.objects.create(
+        audiobook = PendingAudiobooks.objects.create(
             title=title,
             short_description=short_description,
             audio_book=audio_book,
@@ -41,7 +41,6 @@ def add_audiobook(request):
             created_by=author
         )
 
-        messages.success(request, "Аудиокнига успешно добавлена.")
         return redirect('profile')
 
 
@@ -65,19 +64,19 @@ def stream_audio(request, audiobook_id):
 
 @api_view(["GET", "PUT", "DELETE"])
 @permission_classes([IsAuthenticated, IsAudiobookOwner])
-# @renderer_classes([TemplateHTMLRenderer])
+@renderer_classes([TemplateHTMLRenderer])
 def audiobook_detail(request, audiobook_id):
     try:
         audiobook = Audiobooks.objects.get(pk=audiobook_id)
     except Audiobooks.DoesNotExist:
-        return Response({'detail': 'Audiobook not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'detail': 'Audiobook not found'}, template_name='audiobook_detail.html', status=status.HTTP_404_NOT_FOUND)
 
     if request.method == "GET":
         serializer = AudioBookSerializer(audiobook)
-        return Response({'serializer': serializer.data, 'audiobook': serializer.data})
+        return Response({'serializer': serializer, 'audiobook': audiobook}, template_name='audiobook_detail.html')
 
     elif request.method == "PUT":
-        if request.user != request.user:
+        if request.user != audiobook.created_by:
             return Response({'detail': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
 
         title = request.data.get('title')
@@ -85,11 +84,12 @@ def audiobook_detail(request, audiobook_id):
         audio_book = request.data.get("audio_book")
         book_img = request.data.get("book_img")
 
-        audiobook.title = title
-        audiobook.short_description = short_description
+        if title:
+            audiobook.title = title
+        if short_description:
+            audiobook.short_description = short_description
         if book_img:
             audiobook.book = book_img
-
         if audio_book:
             audiobook.audio_book = audio_book
 
@@ -103,4 +103,6 @@ def audiobook_detail(request, audiobook_id):
             return Response({'detail': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
         else:
             audiobook.delete()
-            return redirect('audiobook-detail')
+            return redirect('profile')
+
+

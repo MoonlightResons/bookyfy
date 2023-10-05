@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Book Detail</title>
+</head>
+<body>
+
+    <h1>Book Detail</h1>
+    {% if book %}
+        <h2>{{ book.title }}</h2>
+        <p>{{ book.description }}</p>
+        <p>Author: {{ book.author }}</p>
+        <p>Price: ${{ book.price }}</p>
+        <img src="{{ book.book_img.url }}" alt="Book Cover">
+
+        {% if request.user != book.seller %}
+            <form method="post" action="{% url 'basket-add' %}">
+                {% csrf_token %}
+                <input type="hidden" name="book_id" value="{{ book.id }}">
+                <input type="submit" value="Добавить в корзину">
+            </form>
+        {% endif %}
+
+        {% if 'message' in request.GET %}
+            <p>{{ request.GET.message }}</p>
+        {% endif %}
+    {% else %}
+        <p>Book not found</p>
+    {% endif %}
+
+    {% if request.user == book.seller %}
+        <h2>Edit Book</h2>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="title" value="{{ book.title }}">
+            <br>
+            <label for="description">Description:</label>
+            <textarea id="description" name="description">{{ book.description }}</textarea>
+            <br>
+            <label for="author">Author:</label>
+            <input type="text" id="author" name="author" value="{{ book.author }}">
+            <br>
+            <label for="price">Price:</label>
+            <input type="number" id="price" name="price" value="{{ book.price }}">
+            <br>
+            <label for="book_img">Upload Book Image:</label>
+            <input type="file" id="book_img" name="book_img">
+            <br>
+            <input type="submit" value="Update Book">
+        </form>
+
+        <h2>Delete Book</h2>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="delete">
+            <input type="submit" value="Delete Book">
+        </form>
+    {% else %}
+    {% endif %}
+
+    <a href="{% url 'profile' %}">Back to Profile</a>
+</body>
+</html>

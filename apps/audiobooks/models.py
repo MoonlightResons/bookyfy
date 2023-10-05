@@ -16,6 +16,22 @@ class Audiobooks(models.Model):
     book_img = models.ImageField(upload_to='book_img', null=False)
     created_by = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name='created_audiobooks')
     genres = models.ManyToManyField(Genre)
+    approved = models.BooleanField(default=False)
 
     def __str__(self):
         return self.title
+
+
+class PendingAudiobooks(models.Model):
+    title = models.CharField(max_length=255, null=False)
+    short_description = models.TextField(max_length=1200)
+    audio_book = models.FileField(upload_to='audio', null=False)
+    book_img = models.ImageField(upload_to='book_img', null=False)
+    created_by = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name='created_pending')
+    genres = models.ManyToManyField(Genre)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+

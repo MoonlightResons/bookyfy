@@ -48,6 +48,9 @@ INSTALLED_APPS = [
     #apps
     "apps.users",
     "apps.audiobooks",
+    "apps.books",
+    "apps.admin_panel",
+    "apps.checkout",
 ]
 
 MIDDLEWARE = [
@@ -161,3 +164,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+STRIPE_SECRET_KEY = 'sk_test_51NloWdH8Kk5QVmrOfxR3kjaRabw5FXJcHWafUd3uEYHoEmCaMtD9P4u4xyNKizyKxQPNAD4DDHhRt8XDtbfSFVsj00xZ02xlKe'
+STRIPE_PUBLISHABLE_KEY = 'pk_test_51NloWdH8Kk5QVmrO5fqdYgMPPCX9GnJj2kfudVPbofJgyHrA28XTRisdjAPEekwoPVVg6NCtAdLAkqdou2shNG5000K8P8CQVV'
+
+CHECKOUT_SUCCESS_URL = 'http://localhost:8000/checkout/success/'
+CHECKOUT_FAILED_URL = 'http://localhost:8000/checkout/cancel/'

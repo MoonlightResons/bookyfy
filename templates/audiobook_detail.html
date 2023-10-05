@@ -9,23 +9,29 @@
 <body>
     <h1>Audiobook Detail</h1>
 
-    <div class="audiobook-info">
-        <h2>{{ audiobook.title }}</h2>
-        <p>{{ audiobook.short_description }}</p>
-        <audio controls>
-            <source src="{{ audiobook.audio_book.url }}" type="audio/mpeg">
-            Your browser does not support the audio element.
-        </audio>
-        <img src="{{ audiobook.book_img.url }}" alt="Book Cover">
-    </div>
+    {% if audiobook %}
+        <div class="audiobook-info">
+            <h2>{{ audiobook.title }}</h2>
+            <p>{{ audiobook.short_description }}</p>
+            <audio controls>
+                <source src="{{ audiobook.audio_book.url }}" type="audio/mpeg">
+                Your browser does not support the audio element.
+            </audio>
+            <img src="{{ audiobook.book_img.url }}" alt="Book Cover">
+        </div>
 
-    {% if user.is_authenticated and user == audiobook.author %}
-        <button class="update-button">Update Audiobook</button>
-        <form action="{% url 'audiobook_detail' audiobook.id %}" method="post" style="display: inline;">
-            {% csrf_token %}
-            <input type="hidden" name="action" value="delete">
-            <button type="submit" class="delete-button">Delete Audiobook</button>
-        </form>
+        {% if user.is_authenticated %}
+            {% if user == audiobook.created_by %}
+                <x class="update-button">Update Audiobook</x>
+                <form action="{% url 'audiobook-detail' audiobook.id %}" method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="delete">
+                    <button type="submit" class="delete-button">Delete Audiobook</button>
+                </form>
+            {% endif %}
+        {% endif %}
+    {% else %}
+        <p>Audiobook not found</p>
     {% endif %}
 
     <!-- Модальное окно для обновления аудиокниги -->
@@ -33,8 +39,10 @@
         <div class="modal-content">
             <span class="close-button">&times;</span>
             <h2>Update Audiobook</h2>
-            <form method="post" enctype="multipart/form-data" class="update-form">
+            <form id="update-form">
                 {% csrf_token %}
+                <input type="hidden" name="action" value="update">
+                <input type="hidden" name="method_over ride" value="PUT">
                 <label for="title">Title:</label>
                 <input type="text" id="title" name="title" required><br><br>
 
@@ -52,29 +60,33 @@
         </div>
     </div>
 
-    <script>document.addEventListener('DOMContentLoaded', function () {
-    // Найти модальное окно и кнопку для его открытия
-    var modal = document.getElementById('update-modal');
-    var button = document.querySelector('.update-button');
-    var closeButton = document.querySelector('.close-button');
+    <a href="{% url 'profile' %}">Back to Profile</a>
 
-    // Открыть модальное окно при нажатии кнопки
-    button.addEventListener('click', function () {
-        modal.style.display = 'block';
-    });
 
-    // Закрыть модальное окно при нажатии на кнопку "Закрыть"
-    closeButton.addEventListener('click', function () {
-        modal.style.display = 'none';
-    });
+    <script>const form = document.getElementById("update-form");
 
-    // Закрыть модальное окно при клике вне него
-    window.addEventListener('click', function (event) {
-        if (event.target === modal) {
-            modal.style.display = 'none';
+form.addEventListener("submit", (event) => {
+    event.preventDefault(); // Отменить стандартное действие отправки формы
+
+    const formData = new FormData(form);
+
+    fetch(window.location.href, {
+        method: 'PUT',
+        headers: {
+            'X-CSRFToken': csrfToken, // Получите CSRF-токен из контекста шаблона
+        },
+        body: formData,
+    })
+    .then((response) => {
+        if (response.ok) {
+            // Успешное обновление аудиокниги
+            window.location.reload(); // Обновите страницу после успешного обновления
+        } else {
+            console.error('Failed to update audiobook.');
         }
     });
 });
+
 </script>
 </body>
 </html>
