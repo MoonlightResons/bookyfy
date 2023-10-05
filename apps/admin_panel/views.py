@@ -77,6 +77,7 @@ def admin_approve_audio(request):
                 Audiobooks.objects.create(
                     title=pending_audio.title,
                     short_description=pending_audio.short_description,
+                    audio_book=pending_audio.audio_book,
                     book_img=pending_audio.book_img,
                     created_by=pending_audio.created_by,
                     approved=True

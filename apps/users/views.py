@@ -115,7 +115,6 @@ def profile(request):
     elif request.method == 'POST':
         action = request.POST.get('action')
         if action == 'update':
-            # Получите данные из запроса
             username = request.data.get('username')
             email = request.data.get('email')
             avatar_img = request.data.get('avatar_img')

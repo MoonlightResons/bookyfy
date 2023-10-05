@@ -101,7 +101,7 @@ def add_book_basket(request):
     user = request.user
 
     try:
-        basket = Basket.objects.get(defaultuser=user)
+        basket = Basket.objects.get(user=user)
     except Basket.DoesNotExist:
         return Response({'message': 'Корзина не существует'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -128,7 +128,7 @@ def add_book_basket(request):
 @permission_classes([IsAuthenticated, IsOwnerOfBasket])
 def basket_items_delete(request, item_id):
     try:
-        basket_item = BasketItem.objects.get(id=item_id, basket__defaultuser=request.user)
+        basket_item = BasketItem.objects.get(id=item_id, basket__user=request.user)
     except BasketItem.DoesNotExist:
         return Response({'detail': 'Basket item not found'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -147,7 +147,7 @@ def get_basket_items(request):
     user = request.user
 
     try:
-        basket_items = BasketItem.objects.filter(basket__defaultuser=user)
+        basket_items = BasketItem.objects.filter(basket__user=user)
     except BasketItem.DoesNotExist:
         return Response({'detail': 'Basket items not found'}, status=status.HTTP_404_NOT_FOUND)
 

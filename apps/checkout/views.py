@@ -22,7 +22,7 @@ class CreateCheckoutSession(APIView):
         user = request.user
 
         # Получите все предметы BasketItem для залогиненного пользователя
-        basket_items = BasketItem.objects.filter(basket__defaultuser=user)
+        basket_items = BasketItem.objects.filter(basket__user=user)
 
         line_items = []
         total_amount = 0  # Общая сумма заказа в центах
