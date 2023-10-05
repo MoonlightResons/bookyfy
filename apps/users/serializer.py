@@ -98,6 +98,7 @@ class ContentMakerSerializer(serializers.ModelSerializer):
         )
         user.set_password(validated_data['password'])
         user.save()
+        Basket.objects.create(user=user)
         return user
 
 
