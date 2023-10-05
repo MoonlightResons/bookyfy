@@ -4,7 +4,7 @@ from django.forms import forms
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from .models import DefaultUser, Seller, ContentMaker
+from .models import DefaultUser, Seller, ContentMaker, MyUser
 from ..books.models import Basket
 
 
@@ -16,6 +16,12 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['email'] = user.email
         token['is_Seller'] = user.is_Seller
         return token
+
+
+class MyUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MyUser
+        fields = "__all__"
 
 
 class UserSerializer(serializers.ModelSerializer):

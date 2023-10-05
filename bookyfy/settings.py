@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "apps.books",
     "apps.admin_panel",
     "apps.checkout",
+    "apps.homepage"
 ]
 
 MIDDLEWARE = [
@@ -118,6 +119,8 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PAGINATION_CLASS': "rest_framework.pagination.PageNumberPagination",
     'PAGE_SIZE': 100,
+
+    'ALLOWED_METHODS': ['GET', 'POST', 'PUT', 'DELETE'],
 }
 
 # Password validation
@@ -169,5 +172,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 STRIPE_SECRET_KEY = 'sk_test_51NloWdH8Kk5QVmrOfxR3kjaRabw5FXJcHWafUd3uEYHoEmCaMtD9P4u4xyNKizyKxQPNAD4DDHhRt8XDtbfSFVsj00xZ02xlKe'
 STRIPE_PUBLISHABLE_KEY = 'pk_test_51NloWdH8Kk5QVmrO5fqdYgMPPCX9GnJj2kfudVPbofJgyHrA28XTRisdjAPEekwoPVVg6NCtAdLAkqdou2shNG5000K8P8CQVV'
 
-CHECKOUT_SUCCESS_URL = 'http://localhost:8000/checkout/success/'
-CHECKOUT_FAILED_URL = 'http://localhost:8000/checkout/cancel/'
+CHECKOUT_SUCCESS_URL = 'http://127.0.0.1:8000/checkout/success/'
+CHECKOUT_FAILED_URL = 'http://127.0.0.1:8000/checkout/cancel/'

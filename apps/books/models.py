@@ -21,7 +21,7 @@ class PendingBook(models.Model):
     author = models.CharField(max_length=255, null=False)
     price = models.IntegerField(null=False)
     book_img = models.ImageField(upload_to='rbook_img')
-    seller = models.ForeignKey(MyUser, on_delete=models.CASCADE)
+    seller = models.ForeignKey(MyUser, on_delete=models.PROTECT)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

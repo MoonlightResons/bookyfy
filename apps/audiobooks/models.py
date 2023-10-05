@@ -14,7 +14,7 @@ class Audiobooks(models.Model):
     short_description = models.TextField(max_length=1200)
     audio_book = models.FileField(upload_to='audio', blank=False)
     book_img = models.ImageField(upload_to='book_img', blank=False)
-    created_by = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name='created_audiobooks')
+    created_by = models.ForeignKey(MyUser, on_delete=models.PROTECT, related_name='created_audiobooks')
     genres = models.ManyToManyField(Genre)
     approved = models.BooleanField(default=False)
 
