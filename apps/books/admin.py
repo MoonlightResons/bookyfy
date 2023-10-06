@@ -1,5 +1,5 @@
 from django.contrib import admin
-from apps.books.models import Book, PendingBook, BasketItem, Basket
+from apps.books.models import Book, PendingBook, BasketItem, Basket, BookComment, Rate
 
 
 class BasketItemInline(admin.TabularInline):
@@ -15,3 +15,5 @@ class CartAdmin(admin.ModelAdmin):
 admin.site.register(Basket, CartAdmin)
 admin.site.register(Book)
 admin.site.register(PendingBook)
+admin.site.register(BookComment)
+admin.site.register(Rate)

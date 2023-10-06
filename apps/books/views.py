@@ -5,8 +5,8 @@ from rest_framework.decorators import api_view, permission_classes, renderer_cla
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.response import Response
-from apps.books.models import Book, PendingBook, Basket, BasketItem
-from apps.books.serializer import BookSerializer, BasketItemSerializer
+from apps.books.models import Book, PendingBook, Basket, BasketItem, BookComment
+from apps.books.serializer import BookSerializer, BasketItemSerializer, CommentSerializer
 from apps.users.permissions import IsBookSeller, IsOwnerOfBasket
 
 
@@ -48,7 +48,7 @@ def add_book(request):
             return redirect('profile')
 
 
-@api_view(["GET", "PUT", "DELETE"])
+@api_view(["GET", "PUT", "DELETE", "POST"])
 @permission_classes([IsAuthenticated, IsBookSeller])
 @renderer_classes([TemplateHTMLRenderer])
 def book_detail(request, book_id):
@@ -59,11 +59,12 @@ def book_detail(request, book_id):
 
     if request.method == "GET":
         serializer = BookSerializer(book)
-        return Response({'serializer': serializer.data, 'book': serializer.data}, template_name='book_detail.html')
+        comments = BookComment.objects.filter(book=book)  # Получаем все комментарии для данной книги
+        return Response({'serializer': serializer.data, 'book': serializer.data, 'comments': comments}, template_name='book_detail.html')
 
     elif request.method == "PUT":
-        if request.user != request.user:
-            return Response({'detail': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN,)
+        if request.user != book.seller:
+            return Response({'detail': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
 
         title = request.data.get('title')
         description = request.data.get("description")
@@ -78,12 +79,25 @@ def book_detail(request, book_id):
         if book_img:
             book.book_img = book_img
 
-        if book:
-            book.book = book
-
         book.save()
 
         messages.success(request, "Книга успешно обновлена.")
+        return redirect('book-detail', book_id=book_id)
+
+    elif request.method == "POST":
+        comment_content = request.data.get('comment_data')
+        comment_rate = request.data.get('comment_rate')
+        comment_author = request.user
+
+        # Создаем новый комментарий и связываем его с книгой
+        new_comment = BookComment.objects.create(
+            comment_content=comment_content,
+            comment_rate=comment_rate,
+            comment_author=comment_author,
+            book=book
+        )
+
+        messages.success(request, "Комментарий успешно добавлен.")
         return redirect('book-detail', book_id=book_id)
 
     elif request.method == "DELETE":
@@ -155,6 +169,16 @@ def get_basket_items(request):
     return Response({'basket_items': serialized_data}, status=status.HTTP_200_OK)
 
 
+# @api_view(["GET", "POST"])
+# @permission_classes([IsAuthenticated])
+# def comment_create(request, book_id):
+#     try:
+#         book = Book.objects.get(pk=book_id)
+#     except Book.DoesNotExist:
+#         return Response({'detail': 'Book not found'}, status=status.HTTP_404_NOT_FOUND)
+#     if request.method == "GET":
+#         serializer = BookSerializer(book)
+#         return Response({"book": serializer.data}, status=status.HTTP_200_OK)
 
 
 

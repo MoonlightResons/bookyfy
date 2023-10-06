@@ -1,4 +1,4 @@
-from .models import Book, PendingBook, BasketItem
+from .models import Book, PendingBook, BasketItem, BookComment
 from rest_framework import serializers
 
 
@@ -20,3 +20,8 @@ class BasketItemSerializer(serializers.ModelSerializer):
         model = BasketItem
         fields = '__all__'
 
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BookComment
+        fields = '__all__'

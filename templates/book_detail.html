@@ -22,6 +22,29 @@
             </form>
         {% endif %}
 
+        <h2>Create Comment</h2>
+        <form method="post" action="{% url 'book-detail' book_id=book.id %}">
+            {% csrf_token %}
+            <label for="comment_content">Comment:</label>
+            <textarea id="comment_content" name="comment_data"></textarea>
+            <br>
+            <label for="comment_rate">Rate:</label>
+            <input type="number" id="comment_rate" name="comment_rate" min="1" max="5">
+            <br>
+            <input type="hidden" name="comment_author" value="{{ request.user.username }}">
+            <input type="hidden" name="book" value="{{ book.id }}">
+            <input type="submit" value="Add Comment">
+        </form>
+
+        <h2>Comments</h2>
+        <ul>
+            {% for comment in book.bookcomment_set.all %}
+                <li>{{ comment.comment_content }} - Rate: {{ comment.comment_rate }} by {{ comment.comment_author }}</li>
+            {% empty %}
+                <li>No comments yet.</li>
+            {% endfor %}
+        </ul>
+
         {% if 'message' in request.GET %}
             <p>{{ request.GET.message }}</p>
         {% endif %}
