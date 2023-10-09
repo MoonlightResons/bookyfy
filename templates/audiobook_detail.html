@@ -13,12 +13,18 @@
         <div class="audiobook-info">
             <h2>{{ audiobook.title }}</h2>
             <p>{{ audiobook.short_description }}</p>
+            <p>Likes: {{ audiobook.likes.count }}</p>
+            <p>Genres:
+                {% for genre in genres %}
+                {{ genre.name }}
+                {% if not forloop.last %}, {% endif %}
+            {% endfor %}
+            </p>
+        <img src="{{ audiobook.book_img.url }}" alt="Book Cover" width="150" height="200">
             <audio controls>
                 <source src="{{ audiobook.audio_book.url }}" type="audio/mpeg">
                 Your browser does not support the audio element.
             </audio>
-            <img src="{{ audiobook.book_img.url }}" alt="Book Cover">
-        </div>
 
         {% if user.is_authenticated %}
             {% if user == audiobook.created_by %}
@@ -34,7 +40,44 @@
         <p>Audiobook not found</p>
     {% endif %}
 
-    <!-- Модальное окно для обновления аудиокниги -->
+        <hr>
+
+        <h2>Create Comment</h2>
+        <form method="post" action="{% url 'audiobook-detail' audiobook_id=audiobook.id %}">
+            {% csrf_token %}
+            <label for="comment_content">Comment:</label>
+            <textarea id="comment_content" name="content" required></textarea><br>
+            <input type="submit" value="Add Comment">
+        </form>
+
+    <form method="post" action="{% url 'audiobook-like' audiobook_id=audiobook.id %}">
+        {% csrf_token %}
+        <button type="submit" class="like-button">Like</button>
+    </form>
+
+    <h2>Comments</h2>
+    {% for comment in comments %}
+        <p>
+            <a href="{% if comment.author.id == user.id %}{% url 'profile' %}{% else %}{% url 'another-profile' user_id=comment.author.id %}{% endif %}">{{ comment.author.username }}</a>: {{ comment.content }}
+        </p>
+
+        {% if user == comment.author %}
+        <form method="post" action="{% url 'audio-comment-detail' audiobook_id=audiobook.id comment_id=comment.id %}" style="display: inline;">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="update">
+            <button type="submit" class="update-button">Update</button>
+        </form>
+        <form method="post" action="{% url 'audio-comment-detail' audiobook_id=audiobook.id comment_id=comment.id %}" style="display: inline;">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="delete">
+            <button type="submit" class="delete-button">Delete</button>
+        </form>
+        {% endif %}
+    {% empty %}
+        <p>No comments yet.</p>
+    {% endfor %}
+
+
     <div id="update-modal" class="modal">
         <div class="modal-content">
             <span class="close-button">&times;</span>
@@ -59,34 +102,27 @@
             </form>
         </div>
     </div>
+    </div>
 
     <a href="{% url 'profile' %}">Back to Profile</a>
 
+<script>
+    const openModalButton = document.getElementById("open-update-modal");
+    const closeModalButton = document.getElementById("close-update-modal");
+    const updateModal = document.getElementById("update-modal");
 
-    <script>const form = document.getElementById("update-form");
+    openModalButton.addEventListener("click", () => {
+        updateModal.style.display = "block";
+    });
 
-form.addEventListener("submit", (event) => {
-    event.preventDefault(); // Отменить стандартное действие отправки формы
+    closeModalButton.addEventListener("click", () => {
+        updateModal.style.display = "none";
+    });
 
-    const formData = new FormData(form);
-
-    fetch(window.location.href, {
-        method: 'PUT',
-        headers: {
-            'X-CSRFToken': csrfToken, // Получите CSRF-токен из контекста шаблона
-        },
-        body: formData,
-    })
-    .then((response) => {
-        if (response.ok) {
-            // Успешное обновление аудиокниги
-            window.location.reload(); // Обновите страницу после успешного обновления
-        } else {
-            console.error('Failed to update audiobook.');
+    window.addEventListener("click", (event) => {
+        if (event.target === updateModal) {
+            updateModal.style.display = "none";
         }
     });
-});
-
 </script>
-</body>
-</html>
+

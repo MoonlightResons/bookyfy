@@ -1,10 +1,8 @@
+{% extends "base.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Profile</title>
-  </head>
+
+{% block content %}
+    
       <link rel="stylesheet" type="text/css" href="{% static "assets/css/profile.css" %}">
   <body>
     <center>
@@ -46,8 +44,7 @@
     <ul>
         {% for book in books %}
             <li>
-{#                <a href="{% url 'book-detail' book.id %}">{{ book.title }}</a>#}
-                <!-- Другие поля книги, которые вы хотите отобразить -->
+                <a href="{% url 'book-detail' book.id %}">{{ book.title }}</a>
             </li>
         {% endfor %}
     </ul>
@@ -122,3 +119,4 @@ deleteBtn.addEventListener("click", () => {
     </script>
   </body>
 </html>
+{% endblock %}

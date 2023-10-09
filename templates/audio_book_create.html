@@ -29,6 +29,14 @@
         <label for="book_img">Book Image:</label>
         <input type="file" id="book_img" name="book_img" accept="image/*" required><br><br>
 
+        <label for="genres">Genres:</label>
+        <div id="genres">
+            {% for genre in genres %}
+            <input type="checkbox" id="genre_{{ genre.id }}" name="genres" value="{{ genre.id }}">
+            <label for="genre_{{ genre.id }}">{{ genre.name }}</label><br>
+            {% endfor %}
+        </div>
+
         <!-- Передаем текущего пользователя как автора -->
         <input type="hidden" id="author" name="author" value="{{ user.id }}">
 
@@ -36,3 +44,51 @@
     </form>
 </body>
 </html>
+
+<script>
+    const genres = [
+        {% for genre in genres %}
+        {
+            id: {{ genre.id }},
+            name: "{{ genre.name }}"
+        },
+        {% endfor %}
+    ];
+
+    const selectedGenres = new Set();
+
+    function updateSelectedGenres() {
+        const selectedGenresContainer = document.getElementById("selectedGenres");
+        selectedGenresContainer.innerHTML = "";
+
+        for (const genreId of selectedGenres) {
+            const genre = genres.find(g => g.id === genreId);
+            const genreButton = document.createElement("button");
+            genreButton.textContent = genre.name;
+            genreButton.addEventListener("click", () => {
+                selectedGenres.delete(genreId);
+                updateSelectedGenres();
+            });
+            selectedGenresContainer.appendChild(genreButton);
+        }
+    }
+
+    window.onload = () => {
+        updateSelectedGenres();
+
+        const genreButtonsContainer = document.getElementById("genreButtons");
+        for (const genre of genres) {
+            const genreButton = document.createElement("button");
+            genreButton.textContent = genre.name;
+            genreButton.addEventListener("click", () => {
+                if (!selectedGenres.has(genre.id)) {
+                    selectedGenres.add(genre.id);
+                    updateSelectedGenres();
+                }
+            });
+            genreButtonsContainer.appendChild(genreButton);
+        }
+    };
+</script>
+
+

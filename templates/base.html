@@ -1,0 +1,25 @@
+{% load static %}
+<!DOCTYPE html>
+</head>
+    <link rel="stylesheet" type="text/css" href="{% static "assets/css/base.css" %}">
+<body>
+  <header>
+    <nav>
+      <ul class="menu-links">
+          {% if user.is_authenticated %}
+        <li><a href="{% url "audio-list-homepage" %}" class="home-link active">Homepage</a></li>
+        <li><a href="{% url "books-list-homepage" %}" class="market-link">Market</a></li>
+        <li><a href="{% url "profile" %}" class="profile-link">Profile</a></li>
+          {% else %}
+        <li><a href="{% url "login" %}" class="login-link">Login</a></li>
+        <li><a href="{% url 'user-registration' %}" class="register-link">Register</a></li>
+          {% endif %}
+      </ul>
+    </nav>
+    <div>
+
+        </div>
+  </header>
+  {% block content %}{% endblock %}
+</body>
+</html>

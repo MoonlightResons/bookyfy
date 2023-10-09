@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Book Market</title>
+</head>
+<body>
+    <h1>Book Market</h1>
+
+{% for item in genre_audiobooks %}
+    <h2>{{ item.genre.name }}</h2>
+    <ul>
+        {% for book in item.book %}
+            <li>
+                <a href="{% url 'book-detail' book.id %}">
+                    {{ book.title }} - Rating: {{ book.rating }}
+                </a>
+            </li>
+        {% empty %}
+            <p>No audiobooks available</p>
+        {% endfor %}
+    </ul>
+{% empty %}
+    <p>No genres available</p>
+{% endfor %}
+
+</body>
+</html>
+{% endblock %}

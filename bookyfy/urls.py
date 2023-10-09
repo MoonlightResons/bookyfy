@@ -27,6 +27,7 @@ urlpatterns = [
     path('book/', include("apps.books.urls")),
     path('adminka/', include('apps.admin_panel.urls')),
     path('checkout/', include('apps.checkout.urls')),
+    path('home/', include('apps.homepage.urls')),
     # path('', include('rest_framework.urls')),
 
 ]

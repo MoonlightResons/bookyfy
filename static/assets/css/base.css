@@ -1,0 +1,35 @@
+    /* Стили для header */
+    header {
+      background-color: #333;
+      color: #fff;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Стили для кнопок login и register */
+    .login-btn,
+    .register-btn {
+      display: none; /* Начальное состояние: скрыты */
+      color: #fff;
+      text-decoration: none;
+      margin-right: 10px;
+    }
+
+    /* Стили для путей Homepage, Market и Profile */
+    .menu-links {
+      display: flex;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .menu-links li {
+      margin-right: 10px;
+    }
+
+    /* Стили для активного пути (например, подчеркивания) */
+    .menu-links .active {
+      text-decoration: underline;
+    }

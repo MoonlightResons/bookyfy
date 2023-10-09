@@ -2,17 +2,25 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Book Detail</title>
 </head>
 <body>
-
     <h1>Book Detail</h1>
     {% if book %}
         <h2>{{ book.title }}</h2>
         <p>{{ book.description }}</p>
         <p>Author: {{ book.author }}</p>
         <p>Price: ${{ book.price }}</p>
+        <p>Rating: {{ book.rating }}🌟</p>
         <img src="{{ book.book_img.url }}" alt="Book Cover">
+
+    <p>Genres:
+        {% for genre in genres %}
+            {{ genre.name }}
+            {% if not forloop.last %}, {% endif %}
+        {% endfor %}
+    </p>
 
         {% if request.user != book.seller %}
             <form method="post" action="{% url 'basket-add' %}">
@@ -23,23 +31,46 @@
         {% endif %}
 
         <h2>Create Comment</h2>
-        <form method="post" action="{% url 'book-detail' book_id=book.id %}">
+        <form method="post" action="{% url 'book-detail' book_id=book.id %}" style="display: inline;">
             {% csrf_token %}
             <label for="comment_content">Comment:</label>
-            <textarea id="comment_content" name="comment_data"></textarea>
-            <br>
+            <textarea id="comment_content" name="comment_content"></textarea><br>
             <label for="comment_rate">Rate:</label>
-            <input type="number" id="comment_rate" name="comment_rate" min="1" max="5">
-            <br>
+            <select id="comment_rate" name="comment_rate" required>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+
             <input type="hidden" name="comment_author" value="{{ request.user.username }}">
             <input type="hidden" name="book" value="{{ book.id }}">
             <input type="submit" value="Add Comment">
         </form>
 
+
         <h2>Comments</h2>
         <ul>
-            {% for comment in book.bookcomment_set.all %}
-                <li>{{ comment.comment_content }} - Rate: {{ comment.comment_rate }} by {{ comment.comment_author }}</li>
+            {% for comment in comments %}
+                <li>
+                    {{ comment.comment_content }} - Rate: {{ comment.comment_rate.rate }} by {{ comment.comment_author.username }}
+                        {% if request.user == comment.comment_author %}
+                        <form method="post" action="{% url 'comment-detail' comment_id=comment.id book_id=book.id %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="comment_data" value="{{ comment.comment_content }}">
+                            <input type="hidden" name="comment_rate" value="{{ comment.comment_rate.rate }}">
+                            <input type="hidden" name="comment_author" value="{{ comment.comment_author.username }}">
+                            <input type="hidden" name="book" value="{{ book.id }}">
+                            <input type="hidden" name="action" value="update">
+                            <button type="submit">Update Comment</button>
+                        </form>
+                        <form method="post" action="{% url 'comment-detail' comment_id=comment.id book_id=book.id %}">
+                            {% csrf_token %}
+                            <input type="submit" value="Delete Comment">
+                        </form>
+                    {% endif %}
+                </li>
             {% empty %}
                 <li>No comments yet.</li>
             {% endfor %}
@@ -52,7 +83,7 @@
         <p>Book not found</p>
     {% endif %}
 
-    {% if request.user == book.seller %}
+    {% if user == book.seller %}
         <h2>Edit Book</h2>
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}

@@ -1,21 +1,43 @@
-import mimetypes
-import os
-from django.conf import settings
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render, redirect, get_object_or_404
-from rest_framework.renderers import TemplateHTMLRenderer
-from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes, renderer_classes, action
-from rest_framework import permissions, status
-from apps.users.permissions import IsContentMaker, IsAudiobookOwner
-from apps.audiobooks.models import Audiobooks, PendingAudiobooks
-from apps.audiobooks.serializer import AudioBookSerializer
-from apps.users.models import ContentMaker
+from django.shortcuts import render
+from rest_framework.decorators import api_view, permission_classes, renderer_classes
+from apps.audiobooks.models import Audiobooks, Genre
 from rest_framework.permissions import IsAuthenticated
 
+from apps.books.models import Book
 
-# @api_view(['GET'])
-# @permission_classes
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def homepage(request):
+    genres = Genre.objects.all()
+
+    if request.method == "GET":
+        genre_audiobooks = []
+
+        for genre in genres:
+            audiobooks = Audiobooks.objects.filter(genres=genre)
+            genre_audiobooks.append({'genre': genre, 'audiobooks': audiobooks})
+
+        return render(request, 'homepage.html', {'genre_audiobooks': genre_audiobooks})
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def books(request):
+    genres = Genre.objects.all()
+
+    if request.method == "GET":
+        genre_audiobooks = []
+
+        for genre in genres:
+            book = Book.objects.filter(genres=genre)
+            genre_audiobooks.append({'genre': genre, 'book': book})
+
+        return render(request, 'market.html', {'genre_audiobooks': genre_audiobooks})
+
+
+
+
+
+
 

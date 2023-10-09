@@ -1,4 +1,4 @@
-/* Стили для модального окна */
+
 .modal {
     display: none;
     position: fixed;
@@ -23,7 +23,6 @@
     cursor: pointer;
 }
 
-/* Стили для кнопки обновления */
 .update-button {
     background-color: #4CAF50;
     color: white;
@@ -37,7 +36,6 @@
     background-color: #45a049;
 }
 
-/* Дополнительные стили, которые вам могут понадобиться */
 .audiobook-info {
     margin: 20px;
     padding: 20px;
@@ -45,7 +43,7 @@
     background-color: #f9f9f9;
 }
 
-/* Стили для формы обновления */
 .update-form {
     margin-top: 10px;
 }
+

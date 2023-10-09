@@ -35,15 +35,16 @@ def admin_approve_books(request):
             pending_book = PendingBook.objects.get(pk=book_id)
 
             if action == 'approve':
-                Book.objects.create(
+                book = Book.objects.create(
                     title=pending_book.title,
                     description=pending_book.description,
                     book_img=pending_book.book_img,
                     author=pending_book.author,
                     price=pending_book.price,
                     seller=pending_book.seller,
-                    approved=True
+                    approved=True,
                 )
+                book.genres.set(pending_book.genres.all())
                 pending_book.delete()
                 messages.success(request, "Книга одобрена.")
 
@@ -74,7 +75,7 @@ def admin_approve_audio(request):
             pending_audio = PendingAudiobooks.objects.get(pk=audio_id)
 
             if action == 'approve':
-                Audiobooks.objects.create(
+                audio = Audiobooks.objects.create(
                     title=pending_audio.title,
                     short_description=pending_audio.short_description,
                     audio_book=pending_audio.audio_book,
@@ -82,6 +83,7 @@ def admin_approve_audio(request):
                     created_by=pending_audio.created_by,
                     approved=True
                 )
+                audio.genres.set(pending_audio.genres.all())
                 pending_audio.delete()
                 messages.success(request, "Аудиокнига одобрена.")
 

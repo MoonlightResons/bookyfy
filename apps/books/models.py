@@ -16,19 +16,20 @@ class Rate(models.Model):
     def __str__(self):
         return str(self.rate)
 
+
 class Book(models.Model):
     title = models.CharField(max_length=255, null=False)
     description = models.TextField(max_length=1200, null=False)
     author = models.CharField(max_length=255, null=False)
     price = models.IntegerField(null=False)
     book_img = models.ImageField(upload_to='rbook_img', null=False)
-    genres = models.ManyToManyField(Genre)
+    genres = models.ManyToManyField(Genre, related_name='books')
     seller = models.ForeignKey(MyUser, on_delete=models.CASCADE)
     approved = models.BooleanField(default=False)
     rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.00)
 
     def update_rating(self):
-        avg_rating = self.comments.aggregate(Avg('comment_rate__rate'))['comment_rate__rate__avg']
+        avg_rating = self.books.aggregate(Avg('comment_rate__rate'))['comment_rate__rate__avg']
         if avg_rating is not None:
             avg_rating = round(avg_rating, 2)
         else:
@@ -41,6 +42,18 @@ class Book(models.Model):
         return self.title
 
 
+# class UserInteraction(models.Model):
+#     user = models.ForeignKey(MyUser, on_delete=models.CASCADE)  # Связь с пользователем
+#     book = models.ForeignKey(Book, on_delete=models.CASCADE)  # Связь с книгой (замените "Book" на вашу модель книг)
+#     rating = models.PositiveIntegerField()  # Оценка пользователя (например, от 1 до 5)
+#     # Другие поля для отслеживания взаимодействий, например, дата, действие и т. д.
+
+    # class Meta:
+    #     unique_together = ('user', 'book')  # Уникальность взаимодействий для каждого пользователя и книги
+    #
+    # def str(self):
+    #     return f"{self.user} - {self.book} - Rating: {self.rating}"
+
 class BookComment(models.Model):
     comment_content = models.TextField(null=False)
     comment_rate = models.ForeignKey(Rate, on_delete=models.CASCADE)
@@ -49,10 +62,10 @@ class BookComment(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        self.product.update_rating()
+        self.book.update_rating()
 
     def __str__(self):
-        return f"Comment by {self.comment_author} on {self.product}"
+        return f"Comment by {self.comment_author} on {self.book}"
 
 
 class PendingBook(models.Model):
@@ -63,6 +76,7 @@ class PendingBook(models.Model):
     book_img = models.ImageField(upload_to='rbook_img')
     seller = models.ForeignKey(MyUser, on_delete=models.PROTECT)
     created_at = models.DateTimeField(auto_now_add=True)
+    genres = models.ManyToManyField(Genre, related_name='pending_books')
 
     def __str__(self):
         return self.title
